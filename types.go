@@ -18,38 +18,70 @@ type Parameters struct {
 
 // Response representation of a full marathon response
 type Response struct {
-	Code     int
-	Apps     []*Application `json:"apps,omitempty"`
-	App      *Application   `json:"app,omitempty"`
-	Versions []string       `json:",omitempty"`
-	Tasks    []*Task        `json:"tasks,omitempty"`
+	Code int
+	//Groups   []*Group       `json:",omitempty"`
+	Apps       []*Application `json:"apps,omitempty"`
+	App        *Application   `json:"app,omitempty"`
+	Versions   []string       `json:",omitempty"`
+	Tasks      []*Task        `json:"tasks,omitempty"`
+	Queues     []*Queue       `json:"queue,omitempty"`
+	AppVersion Application
 }
 
-// Application marathon application see :
+type Queue struct {
+	Count int          `json:"count,omitempty"`
+	Delay *Delayment   `json:"delay,omitempty"`
+	App   *Application `json:"app,omitempty"`
+}
+
+type Delayment struct {
+	Overdue bool `json:"overdue,omitempty"`
+}
+
 // https://github.com/mesosphere/marathon/blob/master/REST.md#apps
 type Application struct {
-	ID                    string            `json:"id"`
-	Cmd                   string            `json:"cmd,omitempty"`
-	Constraints           [][]string        `json:"constraints,omitempty"`
-	Container             *Container        `json:"container,omitempty"`
-	CPUs                  float32           `json:"cpus,omitempty"`
-	Deployments           []*Deployment     `json:"deployments,omitempty"`
-	Env                   map[string]string `json:"env,omitempty"`
-	Executor              string            `json:"executor,omitempty"`
-	HealthChecks          []*HealthCheck    `json:"healthChecks,omitempty"`
-	Instances             int               `json:"instances,omitemptys"`
-	Mem                   float32           `json:"mem,omitempty"`
-	Tasks                 []*Task           `json:"tasks,omitempty"`
-	Ports                 []int             `json:"ports,omitempty"`
-	RequirePorts          bool              `json:"requirePorts,omitempty"`
-	BackoffSeconds        float64           `json:"backoffSeconds,omitempty"`
-	BackoffFactor         float32           `json:"backoffFactor,omitempty"`
-	MaxLaunchDelaySeconds float64           `json:"maxLaunchDelaySeconds,omitempty"`
-	TasksRunning          int               `json:"tasksRunning,omitempty"`
-	TasksStaged           int               `json:"tasksStaged,omitempty"`
-	UpgradeStrategy       *UpgradeStrategy  `json:"upgradeStrategy,omitempty"`
-	Uris                  []string          `json:"uris,omitempty"`
-	Version               string            `json:"version,omitempty"`
+	ID                    string             `json:"id"`
+	Cmd                   string             `json:"cmd,omitempty"`
+	Constraints           [][]string         `json:"constraints"`
+	Container             *Container         `json:"container"`
+	CPUs                  float32            `json:"cpus"`
+	Deployments           []*Deployment      `json:"deployments"`
+	Env                   map[string]string  `json:"env"`
+	Executor              string             `json:"executor"`
+	HealthChecks          []*HealthCheck     `json:"healthChecks"`
+	Instances             int                `json:"instances"`
+	Mem                   float32            `json:"mem"`
+	Tasks                 []*Task            `json:"tasks"`
+	Ports                 []int              `json:"ports"`
+	RequirePorts          bool               `json:"requirePorts"`
+	BackoffSeconds        float64            `json:"backoffSeconds"`
+	BackoffFactor         float32            `json:"backoffFactor"`
+	MaxLaunchDelaySeconds float64            `json:"maxLaunchDelaySeconds"`
+	TasksHealthy          int                `json:"tasksHealthy"`
+	TasksRunning          int                `json:"tasksRunning"`
+	TasksUnHealthy        int                `json:"tasksUnHealthy"`
+	TasksStaged           int                `json:"tasksStaged"`
+	UpgradeStrategy       *UpgradeStrategy   `json:"upgradeStrategy"`
+	Uris                  []string           `json:"uris"`
+	Version               string             `json:"version"`
+	VersionInfo           *VersionInfomation `json:"versionInfo"`
+	LastTaskFailure       *LastTaskFailure   `json:"lastTaskFailure"`
+}
+
+type LastTaskFailure struct {
+	LastConfigChangeAt string `json:"appId"`
+	Host               string `json:"host"`
+	Message            string `json:"message"`
+	SlaveId            string `json:"slaveId"`
+	State              string `json:"state"`
+	TaskId             string `json:"taskId"`
+	TimeStamp          string `json:"timestamp"`
+	Version            string `json:"version"`
+}
+
+type VersionInfomation struct {
+	LastConfigChangeAt string `json:"lastConfigChangeAt"`
+	LastScalingAt      string `json:"lastScalingAt"`
 }
 
 // Container is docker parameters
@@ -61,9 +93,11 @@ type Container struct {
 
 // Docker options
 type Docker struct {
-	Image        string         `json:"image,omitempty"`
-	Network      string         `json:"network,omitempty"`
-	PortMappings []*PortMapping `json:"portMappings,omitempty"`
+	Image          string         `json:"image,omitempty"`
+	ForcePullImage bool           `json:"forcePullImage,omitempty"`
+	Privileged     bool           `json:"privileged,omitempty"`
+	Network        string         `json:"network,omitempty"`
+	PortMappings   []*PortMapping `json:"portMappings,omitempty"`
 }
 
 // Volume is used for mounting a host directory as a container volume

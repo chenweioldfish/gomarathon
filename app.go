@@ -70,8 +70,22 @@ func (c *Client) GetAppVersion(appID string, version string) (*Response, error) 
 	return r, nil
 }
 
+func (c *Client) GetTasks(appID string) (*Response, error) {
+	options := &RequestOptions{
+		Path: fmt.Sprintf("apps/%s/tasks", appID),
+	}
+	r, err := c.request(options)
+	if err != nil {
+		return nil, err
+	}
+	if r.Code != 200 {
+		return nil, fmt.Errorf("request error")
+	}
+	return r, nil
+}
+
 // CreateApp Create a new Application
-func (c *Client) CreateApp(app *Application) (*Response, error) {
+func (c *Client) CreateApp(app []byte) (*Response, error) {
 	// TODO : VALIDATE DATAS
 	options := &RequestOptions{
 		Path:   "apps",
@@ -89,7 +103,7 @@ func (c *Client) CreateApp(app *Application) (*Response, error) {
 
 // UpdateApp update the app but thoses changes are made for the next running app and does
 // not shut down the production applications
-func (c *Client) UpdateApp(appID string, app *Application) (*Response, error) {
+func (c *Client) UpdateApp(appID string, app []byte) (*Response, error) {
 	options := &RequestOptions{
 		Path:   fmt.Sprintf("apps/%s", appID),
 		Datas:  app,
@@ -102,7 +116,6 @@ func (c *Client) UpdateApp(appID string, app *Application) (*Response, error) {
 		}
 	}
 	return nil, err
-
 }
 
 // DeleteApp delete this app from the cluster
@@ -132,4 +145,34 @@ func (c *Client) RestartApp(appID string) (*Response, error) {
 		}
 	}
 	return nil, err
+}
+
+// groups
+func (c *Client) Apps() (*Response, error) {
+	options := &RequestOptions{
+		Path: fmt.Sprintf("apps"),
+	}
+	r, err := c.request(options)
+	if err != nil {
+		return nil, err
+	}
+	if r.Code != 200 {
+		return nil, fmt.Errorf("request error")
+	}
+	return r, nil
+}
+
+// queues
+func (c *Client) Queue() (*Response, error) {
+	options := &RequestOptions{
+		Path: fmt.Sprintf("queue"),
+	}
+	r, err := c.request(options)
+	if err != nil {
+		return nil, err
+	}
+	if r.Code != 200 {
+		return nil, fmt.Errorf("request error")
+	}
+	return r, nil
 }

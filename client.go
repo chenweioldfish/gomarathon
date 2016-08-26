@@ -11,6 +11,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	log "github.com/cihub/seelog"
 )
 
 // Client is containing the configured http.Client
@@ -45,11 +47,8 @@ func (c *Client) do(method, path string, data interface{}) ([]byte, int, error) 
 	var resp *http.Response
 
 	if data != nil {
-		buf, err := json.Marshal(data)
-		if err != nil {
-			return nil, -1, err
-		}
-		params = bytes.NewBuffer(buf)
+		params = bytes.NewBuffer(data.([]byte))
+		fmt.Printf(string(data.([]byte)))
 	}
 
 	req, err := http.NewRequest(method, c.Host.String()+path, params)
@@ -58,7 +57,7 @@ func (c *Client) do(method, path string, data interface{}) ([]byte, int, error) 
 	}
 
 	// Prepare and do the request
-	req.Header.Set("User-Agent", "gomarathon")
+	//req.Header.Set("User-Agent", "gomarathon")
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err = c.HTTPClient.Do(req)
@@ -83,7 +82,6 @@ func (c *Client) do(method, path string, data interface{}) ([]byte, int, error) 
 // TODO:
 // 	- find a better way to build parameters
 func (c *Client) request(options *RequestOptions) (*Response, error) {
-
 	if options.Path == "" {
 		options.Path = "apps"
 	}
@@ -115,15 +113,14 @@ func (c *Client) request(options *RequestOptions) (*Response, error) {
 
 		path = fmt.Sprintf("%s?%s", path, v.Encode())
 	}
-
 	data, code, err := c.do(options.Method, path, options.Datas)
 	if err != nil {
+		log.Error("Err: ", err)
 		return nil, err
 	}
 	resp := &Response{
 		Code: code,
 	}
-
 	err = json.Unmarshal(data, resp)
 	if err != nil {
 		return resp, err
